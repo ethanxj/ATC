@@ -17,8 +17,19 @@ document.getElementById('fileInput').addEventListener('change', async function(e
     // Load the PDF document
     const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
 
+    // Table layout
+    const pageWidth = 600;
+    const pageHeight = 400;
+    const startX = 10; // Starting X position
+    const startY = pageHeight - 10; // Starting Y position
+    const rowHeight = 50; // Height of each row
+    const columnWidths = [75, 75, 75, 75, 37.5, 37.5, 37.5, 75]; // Widths of each column
+    const marginBottom = 10; // Margin at the bottom of the page
+  
     // Use PDFLib to create a new document
     const pdfDoc = await PDFLib.PDFDocument.create();
+    let currentPage = pdfDoc.addPage([pageWidth, pageHeight]);
+    let y = startY;
 
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
@@ -26,11 +37,11 @@ document.getElementById('fileInput').addEventListener('change', async function(e
 
       // Extract text
       const text = textContent.items.map(item => item.str).join('');
-      let segments = text.split(/(?=FF)/);
+      let segments = text.split(/(?=FF YMCH)/);
       
       const strips = [];
       segments.forEach(element => {
-        if (!element.startsWith('FF')) {
+        if (!element.startsWith('FF YMCH') || !element.endsWith(')')) {
           return;
         }
         const match = element.match(/\((.*?)\)/);
@@ -48,18 +59,18 @@ document.getElementById('fileInput').addEventListener('change', async function(e
       });
 
       const { PDFDocument, rgb } = PDFLib;
-      const pageWidth = 600;
-      const pageHeight = 400;
+      // const pageWidth = 600;
+      // const pageHeight = 400;
 
-      // Table layout
-      const startX = 10; // Starting X position
-      const startY = pageHeight - 10; // Starting Y position
-      const rowHeight = 50; // Height of each row
-      const columnWidths = [75, 75, 75, 75, 37.5, 37.5, 37.5, 75]; // Widths of each column
-      const marginBottom = 10; // Margin at the bottom of the page
+      // // Table layout
+      // const startX = 10; // Starting X position
+      // const startY = pageHeight - 10; // Starting Y position
+      // const rowHeight = 50; // Height of each row
+      // const columnWidths = [75, 75, 75, 75, 37.5, 37.5, 37.5, 75]; // Widths of each column
+      // const marginBottom = 10; // Margin at the bottom of the page
 
-      let currentPage = pdfDoc.addPage([pageWidth, pageHeight]);
-      let y = startY;
+      // let currentPage = pdfDoc.addPage([pageWidth, pageHeight]);
+      // let y = startY;
 
       const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
       const drawRow = async (row) => {
